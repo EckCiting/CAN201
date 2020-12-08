@@ -9,7 +9,7 @@ client_port = 12001
 client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.bind(('', client_port))
 
-server_address = ('192.168.0.19', 12002)
+server_address = ('192.168.0.17', 12002)
 
 file_dir = 'share'
 
