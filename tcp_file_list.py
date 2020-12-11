@@ -1,7 +1,7 @@
 from socket import *
 
 import FileUtil
-import udp_file_client as udp
+import file_client as udp
 
 
 def tcp_send_file_name(file_name, hostname):
@@ -26,7 +26,7 @@ def tcp_receive_file_name(serverSocket):
         ans = "0"
     else:
         ans = "1"
-        udp.udp_request_file(received_file, addr[0])
+        udp.request_file(received_file, addr[0])
     connectionSocket.send(ans.encode())
     connectionSocket.close()
 

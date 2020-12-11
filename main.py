@@ -1,9 +1,8 @@
 from multiprocessing import Process
 from threading import Thread
 from FileUtil import *
-from tcp_file_list import *
-import udp_file_server as server
-
+import file_server as server
+from file_list_server import *
 global VMA
 newest_file = ""
 cache_newest_file = ""
@@ -22,27 +21,7 @@ def monitor_file_change_f(cache_list, cache_dir_list, path):
         cache_list = current_list
 
 
-def board_new_file_list_f():
-    print('start process 2')
-    global cache_newest_file
-    global newest_file
-    while True:
-        if newest_file != cache_newest_file:
-            tcp_send_file_name(newest_file, VMA)
-            cache_newest_file = newest_file
-
-
-def tcp_file_list_server_f():
-    print('tcp file list server process start')
-    tcp_file_list_server_port = 12000
-    tcp_file_list_server_socket = socket(AF_INET, SOCK_STREAM)
-    tcp_file_list_server_socket.bind(('', tcp_file_list_server_port))
-    tcp_file_list_server_socket.listen(1)
-    while True:
-        tcp_receive_file_name(tcp_file_list_server_socket)
-
-
-def udp_file_server_f():
+def file_server_f():
     print('udp file server process start')
     udp_file_server_port = 12002
     udp_file_server_socket = socket(AF_INET, SOCK_DGRAM)
@@ -58,15 +37,10 @@ if __name__ == '__main__':
     path = "share"
     cache_list = walk_subfile_list(path)
     cache_dir_list = walk_subdir(path)
-    print(cache_list)
+    file_list_server_p = Process(target=file_list_server_f,args=())
+    file_server_p = Process(target=file_server_f, args=())
+    file_server_p.start()
+    file_list_server_p.start()
     monitor_file_t = Thread(target=monitor_file_change_f, args=(cache_list, cache_dir_list, path,))
-    # send_file_list_t = Thread(target=board_new_file_list_f, args=())
-    # receive_file_list_t = Thread(target=receive_new_file_list_f, args=())
-    # udp_file_server_t = Thread(target=udp_file_server, args=())
-    tcp_file_list_server_p = Process(target=tcp_file_list_server_f, args=())
-    udp_file_server_p = Process(target=udp_file_server_f, args=())
-    udp_file_server_p.start()
-    tcp_file_list_server_p.start()
     monitor_file_t.start()
-    # send_file_list_t.start()
-    # receive_file_list_t.start()
+
