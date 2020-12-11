@@ -1,8 +1,4 @@
-from FileInfo import *
-from multiprocessing import Process
-import main
 import os
-import time
 
 
 def walk_subfiles(path):

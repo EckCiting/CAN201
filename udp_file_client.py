@@ -1,17 +1,8 @@
-import os
 from os.path import join
 import struct
 from socket import *
 import hashlib
 from tqdm import tqdm
-
-client_port = 12001
-client_socket = socket(AF_INET, SOCK_DGRAM)
-client_socket.bind(('', client_port))
-
-server_address = ('192.168.0.17', 12002)
-
-file_dir = 'share'
 
 
 def get_file_md5(filename):
@@ -71,11 +62,15 @@ def parse_file_block(msg):
     return block_index, block_length, file_block
 
 
-if __name__ == '__main__':
-#def udp_file_client_test():
+#if __name__ == '__main__':
+def udp_request_file(filename, server_address):
     # Get file information
     file_dir = 'share'
-    filename = 'mysql.png'
+    # filename = 'mysql.png'
+    client_port = 12001
+    client_socket = socket(AF_INET, SOCK_DGRAM)
+    client_socket.bind(('', client_port))
+
     client_socket.sendto(make_get_file_information_header(filename), server_address)
     msg, _ = client_socket.recvfrom(102400)
     file_size, block_size, total_block_number, md5 = parse_file_information(msg)
