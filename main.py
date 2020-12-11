@@ -41,6 +41,6 @@ if __name__ == '__main__':
     file_server_p = Process(target=file_server_f, args=())
     file_server_p.start()
     file_list_server_p.start()
-    monitor_file_t = Thread(target=monitor_file_change_f, args=(cache_list, cache_dir_list, path,))
-    monitor_file_t.start()
+    #monitor_file_t = Thread(target=monitor_file_change_f, args=(cache_list, cache_dir_list, path,))
+    #monitor_file_t.start()
 

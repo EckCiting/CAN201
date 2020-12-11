@@ -83,7 +83,7 @@ def request_file(filename, server_address):
 
         # Start to get file blocks
         for block_index in tqdm(range(total_block_number)):
-            client_socket.sendto(make_get_fil_block_header(filename, block_index), server_address)
+            client_socket.sendto(make_get_fil_block_header(filename, block_index), (server_address,12002))
             msg, _ = client_socket.recvfrom(block_size + 100)
             block_index_from_server, block_length, file_block = parse_file_block(msg)
             f.write(file_block)
