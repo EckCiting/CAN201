@@ -12,7 +12,7 @@ cache_newest_file = ""
 def monitor_file_change_f(cache_list, cache_dir_list, path):
     global newest_file
     print("start monitoring thread")
-    while(1):
+    while True:
         current_list = walk_subfile_list(path)
         current_dir_list = walk_subdir(path)
         x = find_difference(current_list, current_dir_list, cache_list, cache_dir_list, path)
@@ -26,7 +26,7 @@ def board_new_file_list_f():
     print('start process 2')
     global cache_newest_file
     global newest_file
-    while(1):
+    while True:
         if newest_file != cache_newest_file:
             tcp_send_file_name(newest_file, VMA)
             cache_newest_file = newest_file
@@ -38,7 +38,7 @@ def tcp_file_list_server_f():
     tcp_file_list_server_socket = socket(AF_INET, SOCK_STREAM)
     tcp_file_list_server_socket.bind(('', tcp_file_list_server_port))
     tcp_file_list_server_socket.listen(1)
-    while(1):
+    while True:
         tcp_receive_file_name(tcp_file_list_server_socket)
 
 
@@ -70,4 +70,3 @@ if __name__ == '__main__':
     monitor_file_t.start()
     # send_file_list_t.start()
     # receive_file_list_t.start()
-

@@ -4,7 +4,7 @@ from socket import *
 import hashlib
 from tqdm import tqdm
 
-
+file_dir = 'share'
 def get_file_md5(filename):
     global file_dir
     f = open(join(file_dir, filename), 'rb')
@@ -64,9 +64,6 @@ def parse_file_block(msg):
 
 #if __name__ == '__main__':
 def udp_request_file(filename, server_address):
-    # Get file information
-    file_dir = 'share'
-    # filename = 'mysql.png'
     client_port = 12001
     client_socket = socket(AF_INET, SOCK_DGRAM)
     client_socket.bind(('', client_port))
