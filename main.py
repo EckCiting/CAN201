@@ -3,22 +3,23 @@ from threading import Thread
 from FileUtil import *
 import file_server as server
 from file_list_server import *
+from file_list_client import *
 global VMA
-newest_file = ""
-cache_newest_file = ""
+
+cache_file_list=""
+current_file_list=""
 
 
-def monitor_file_change_f(cache_list, cache_dir_list, path):
-    global newest_file
+def monitor_file_change_f(path):
+    global current_file_list, cache_file_list
     print("start monitoring thread")
     while True:
-        current_list = walk_subfile_list(path)
-        current_dir_list = walk_subdir(path)
-        x = find_difference(current_list, current_dir_list, cache_list, cache_dir_list, path)
+        current_file_list = traverse_files(path)
+        x = find_difference(current_file_list, cache_file_list)
         if x is not None:
-            newest_file = x
-            print('add file:', x)
-        cache_list = current_list
+            cache_file_list = current_file_list
+            send_file_list(VMA, x)
+
 
 
 def file_server_f():
@@ -35,12 +36,11 @@ def file_server_f():
 if __name__ == '__main__':
     VMA = "192.168.0.19"
     path = "share"
-    cache_list = walk_subfile_list(path)
-    cache_dir_list = walk_subdir(path)
+    cache_file_list = traverse_files(path)
     file_list_server_p = Process(target=file_list_server_f,args=())
     file_server_p = Process(target=file_server_f, args=())
     file_server_p.start()
     file_list_server_p.start()
-    #monitor_file_t = Thread(target=monitor_file_change_f, args=(cache_list, cache_dir_list, path,))
-    #monitor_file_t.start()
+    monitor_file_t = Thread(target=monitor_file_change_f, args=(path,))
+    monitor_file_t.start()
 
