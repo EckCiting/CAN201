@@ -16,7 +16,6 @@ def file_list_server_f():
         current_list = traverse_files(path)
 
         if file_list not in str(current_list):
-            file_client.request_file(file_list, VMA)
-
+            file_client.request_file(file_list, client_address[0])
         else:
             print("already have this file")

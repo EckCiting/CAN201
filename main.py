@@ -18,6 +18,7 @@ def monitor_file_change_f(path):
         if x is not None:
             cache_file_list = current_file_list
             send_file_list(VMA, x)
+            send_file_list(VMB, x)
 
 
 
