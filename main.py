@@ -34,7 +34,7 @@ def file_server_f():
 
 
 if __name__ == '__main__':
-    VMA = "192.168.0.19"
+    VMA = "192.168.0.2"
     path = "share"
     cache_file_list = traverse_files(path)
     file_list_server_p = Process(target=file_list_server_f,args=())
