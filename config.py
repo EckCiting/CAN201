@@ -1,0 +1,3 @@
+VMA = ""
+VMB = ""
+path = "share"
