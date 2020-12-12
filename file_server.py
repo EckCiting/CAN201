@@ -1,10 +1,7 @@
 import os
-from os.path import join
 import struct
-from socket import *
 import hashlib, math
 
-file_dir = 'share'
 block_size = 1024  # 1kB
 #
 # server_port = 12002
@@ -13,11 +10,11 @@ block_size = 1024  # 1kB
 
 
 def get_file_size(filename):
-    return os.path.getsize(join(file_dir, filename))
+    return os.path.getsize(filename)
 
 
 def get_file_md5(filename):
-    f = open(join(file_dir, filename), 'rb')
+    f = open(filename, 'rb')
     contents = f.read()
     f.close()
     return hashlib.md5(contents).hexdigest()
@@ -25,7 +22,7 @@ def get_file_md5(filename):
 
 def get_file_block(filename, block_index):
     global block_size
-    f = open(join(file_dir, filename), 'rb')
+    f = open(filename, 'rb')
     f.seek(block_index * block_size)
     file_block = f.read(block_size)
     f.close()
@@ -34,7 +31,7 @@ def get_file_block(filename, block_index):
 
 def make_return_file_information_header(filename):
     global block_size
-    if os.path.exists(join(file_dir, filename)):  # find file and return information
+    if os.path.exists(filename):  # find file and return information
         client_operation_code = 0
         server_operation_code = 0
         file_size = get_file_size(filename)
@@ -58,7 +55,7 @@ def make_file_block(filename, block_index):
     file_size = get_file_size(filename)
     total_block_number = math.ceil(file_size / block_size)
 
-    if os.path.exists(join(file_dir, filename)) is False:  # Check the file existence
+    if os.path.exists(filename) is False:  # Check the file existence
         client_operation_code = 1
         server_operation_code = 1
         header = struct.pack('!II', client_operation_code, server_operation_code)

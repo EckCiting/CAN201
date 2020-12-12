@@ -15,7 +15,7 @@ def file_list_server_f():
         file_list_json, client_address = server_socket.recvfrom(2048)
         file_list = json.loads(file_list_json.decode())
         current_list = traverse_files("share")
-        if file_list[0] not in str(current_list):
-            file_client.request_file(file_list[0], VMA)
+        if file_list not in str(current_list):
+            file_client.request_file(file_list, VMA)
         else:
             print("already have this file")

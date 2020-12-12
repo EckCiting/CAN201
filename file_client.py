@@ -1,13 +1,11 @@
-from os.path import join
 import struct
 from socket import *
 import hashlib
 from tqdm import tqdm
 
-file_dir = 'share'
 def get_file_md5(filename):
     global file_dir
-    f = open(join(file_dir, filename), 'rb')
+    f = open(filename, 'rb')
     contents = f.read()
     f.close()
     return hashlib.md5(contents).hexdigest()
@@ -79,7 +77,7 @@ def request_file(filename, server_address):
         print('MD5:', md5)
 
         # Creat a file
-        f = open(join(file_dir, filename), 'wb')
+        f = open(filename, 'wb')
 
         # Start to get file blocks
         for block_index in tqdm(range(total_block_number)):
