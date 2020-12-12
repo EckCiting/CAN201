@@ -99,11 +99,3 @@ def msg_parse(msg):
     header_length = len(header)
     return struct.pack('!I', header_length) + header
 
-
-# print('Service start!')
-# if __name__ == '__main__':
-#
-#     while True:
-#         msg, client_address = server_socket.recvfrom(10240)  # Set buffer size as 10kB
-#         return_msg = msg_parse(msg)
-#         server_socket.sendto(return_msg, client_address)
