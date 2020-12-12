@@ -17,7 +17,7 @@ def monitor_file_change_f(path):
         x = find_difference(current_file_list, cache_file_list)
         if x is not None:
             cache_file_list = current_file_list
-            send_file_list(config.VMA, x)
+            send_file_list(VMA, x)
 
 
 
