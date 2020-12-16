@@ -3,7 +3,7 @@ from threading import Thread
 import file_server as server
 from file_list_server import *
 from file_list_client import *
-
+from pathlib import Path
 
 cache_file_list=""
 current_file_list=""
@@ -34,6 +34,8 @@ def file_server_f():
 
 
 if __name__ == '__main__':
+    if not Path.exists(Path("share/")):
+        Path.mkdir(Path("share"))
     cache_file_list = traverse_files(path)
     file_list_server_p = Process(target=file_list_server_f,args=())
     file_server_p = Process(target=file_server_f, args=())
