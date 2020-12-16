@@ -3,10 +3,6 @@ import struct
 import hashlib, math
 
 block_size = 1024  # 1kB
-#
-# server_port = 12002
-# server_socket = socket(AF_INET, SOCK_DGRAM)
-# server_socket.bind(('', server_port))
 
 
 def get_file_size(filename):
