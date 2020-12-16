@@ -60,10 +60,10 @@ def parse_file_block(msg):
     return block_index, block_length, file_block
 
 
-def request_file(filename, server_address):
-    client_port = 12001
-    client_socket = socket(AF_INET, SOCK_DGRAM)
-    client_socket.bind(('', client_port))
+def request_file(client_socket, filename, server_address):
+    # client_port = 12001
+    # client_socket = socket(AF_INET, SOCK_DGRAM)
+    # client_socket.bind(('', client_port))
 
     client_socket.sendto(make_get_file_information_header(filename), (server_address,12002))
     msg, _ = client_socket.recvfrom(102400)
