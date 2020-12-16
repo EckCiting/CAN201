@@ -1,7 +1,11 @@
+import shutil
 import struct
-from socket import *
+import os
 import hashlib
 from tqdm import tqdm
+
+from config import file_server_port
+
 
 def get_file_md5(filename):
     global file_dir
@@ -65,7 +69,7 @@ def request_file(client_socket, filename, server_address):
     # client_socket = socket(AF_INET, SOCK_DGRAM)
     # client_socket.bind(('', client_port))
 
-    client_socket.sendto(make_get_file_information_header(filename), (server_address,12002))
+    client_socket.sendto(make_get_file_information_header(filename), (server_address,file_server_port))
     msg, _ = client_socket.recvfrom(102400)
     file_size, block_size, total_block_number, md5 = parse_file_information(msg)
 
@@ -77,20 +81,24 @@ def request_file(client_socket, filename, server_address):
         print('MD5:', md5)
 
         # Creat a file
-        f = open(filename, 'wb')
+        filename_sep = filename.split(os.sep)
+        filename_sep[0] = "temp"
+        tmp_file = os.sep.join(filename_sep)
+        f = open(tmp_file, 'wb')
 
         # Start to get file blocks
         for block_index in tqdm(range(total_block_number)):
-            client_socket.sendto(make_get_fil_block_header(filename, block_index), (server_address,12002))
+            client_socket.sendto(make_get_fil_block_header(filename, block_index), (server_address, file_server_port))
             msg, _ = client_socket.recvfrom(block_size + 100)
             block_index_from_server, block_length, file_block = parse_file_block(msg)
             f.write(file_block)
         f.close()
 
         # Check the MD5
-        md5_download = get_file_md5(filename)
+        md5_download = get_file_md5(tmp_file)
         if md5_download == md5:
             print('Downloaded file is completed.')
+            shutil.move(tmp_file, filename)
         else:
             print('Downloaded file is broken.')
     else:

@@ -2,17 +2,17 @@ from socket import *
 from FileUtil import *
 import json
 import file_client
-from config import VMA, VMB, path
+from config import VMA, VMB, path, file_list_server_port, file_client_port
 from main import cache_file_list
 
 
 def file_list_server_f():
-    server_port = 13000
+    # server_port = 13000
     server_socket = socket(AF_INET, SOCK_DGRAM)
-    server_socket.bind(('', server_port))
+    server_socket.bind(('', file_list_server_port))
     print('The server is ready to receive')
     while True:
-        # now file list is a string
+        # listening file list from other VMs
         file_list_json, client_address = server_socket.recvfrom(2048)
         file_list = json.loads(file_list_json.decode())
         diff = []
@@ -22,9 +22,9 @@ def file_list_server_f():
                 if i not in cache_file_list:
                     diff.append(i)
         if len(diff) != 0:
-            client_port = 12001
+            # find difference, request for file
             client_socket = socket(AF_INET, SOCK_DGRAM)
-            client_socket.bind(('', client_port))
+            client_socket.bind(('', file_client_port))
             for i in diff:
                 # create new folder
                 # only supports secondary dir
