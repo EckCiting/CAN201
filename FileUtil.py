@@ -17,7 +17,6 @@ def find_difference(first_file_list, second_file_list, ):
     # O(m + n) not O(n^2)
     # Find out different file between 2 list
     # Since the test process only add files, num(1_list) > num(2_list)
-    # ? new folder cannot be identified?
     file_dict = {}
     file_list = []
     for file in first_file_list:
@@ -30,8 +29,6 @@ def find_difference(first_file_list, second_file_list, ):
         if file_dict[file] == 1:
             file_list.append(file)
     return file_list
-    # only can pass one file when multiple file is sent into subdir
-    # ! now file_list is a string. consider convert it into list !
 
 
 
