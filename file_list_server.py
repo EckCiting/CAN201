@@ -3,6 +3,7 @@ from FileUtil import *
 import json
 import file_client
 from config import VMA, VMB, path
+from main import cache_file_list
 
 
 def file_list_server_f():
@@ -14,11 +15,12 @@ def file_list_server_f():
         # now file list is a string
         file_list_json, client_address = server_socket.recvfrom(2048)
         file_list = json.loads(file_list_json.decode())
-        current_list = traverse_files(path)
         diff = []
-        for i in file_list:
-            if file_list not in current_list:
-                diff.append(i)
+        if len(file_list) != 0:
+            for i in file_list:
+                print(i)
+                if i not in cache_file_list:
+                    diff.append(i)
         if len(diff) != 0:
             client_port = 12001
             client_socket = socket(AF_INET, SOCK_DGRAM)
