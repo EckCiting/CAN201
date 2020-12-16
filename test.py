@@ -5,8 +5,11 @@ import sys
 import config
 
 if __name__ == '__main__':
-    virtual_machines=sys.argv[2]
-    #VMB=sys.argv[3]
-    config.VMA, config.VMB = virtual_machines.split(',')
-    print("VM1: %s VM2: %s " % (config.VMA,config.VMB))
-   # print("VMB: ", VMB)
+    #a = traverse_files(config.path)
+    #a = ['share\\1\\1.1.txt']
+    #file_list_client.send_file_list("192.168.0.2", a)
+    lst = ["1\\1","2\\2","3\\3"]
+    for i in lst:
+        print(i)
+    print("1\1" in lst)
+
