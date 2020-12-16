@@ -83,6 +83,10 @@ def request_file(client_socket, filename, server_address):
         # Creat a file
         filename_sep = filename.split(os.sep)
         filename_sep[0] = "temp"
+        if len(filename_sep) == 3:
+            new_path = filename_sep[0] + os.sep + filename_sep[1]
+            if not os.path.exists(new_path):
+                os.makedirs(new_path)
         tmp_file = os.sep.join(filename_sep)
         f = open(tmp_file, 'wb')
 
