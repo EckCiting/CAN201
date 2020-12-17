@@ -50,7 +50,7 @@ if __name__ == '__main__':
     file_server_p = Process(target=file_server_f, args=())
     file_server_p.start()
     file_list_server_p.start()
-    sleep(0.3)
+    sleep(0.2)
     send_file_list(VMA, ["allfiles"])
     send_file_list(VMB, ["allfiles"])
     monitor_file_t = Thread(target=monitor_file_change_f, args=(path,))

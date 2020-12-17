@@ -2,9 +2,8 @@ from socket import *
 from FileUtil import *
 import json
 import file_client
-from config import VMA, VMB, path, file_list_server_port, file_client_port
+from config import *
 from file_list_client import send_file_list
-from main import cache_file_list
 
 
 def file_list_server_f():
@@ -19,16 +18,14 @@ def file_list_server_f():
         file_list = json.loads(file_list_json.decode())
         diff = []
         if file_list:
-            print("你是内鬼")
             for i in file_list:
-                if i not in cache_file_list:
-                    diff.append(i)
+               if i not in traverse_files(path):
+                   diff.append(i)
 
         if diff:
             # find difference, request for file
             if diff[0] == "allfiles":
                 a = traverse_files(path)
-                # a = cache_file_list
                 send_file_list(client_address[0], a)
 
             else:
