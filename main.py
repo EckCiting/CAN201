@@ -8,8 +8,8 @@ from file_list_server import *
 from file_list_client import *
 from pathlib import Path
 
-cache_file_list=""
-current_file_list=""
+cache_file_list = []
+current_file_list = []
 
 
 def monitor_file_change_f(path):
@@ -30,7 +30,7 @@ def file_server_f():
     file_server_socket = socket(AF_INET, SOCK_DGRAM)
     file_server_socket.bind(('', file_server_port))
     while True:
-        msg, client_address = file_server_socket.recvfrom(10240)  # Set buffer size as 10kB
+        msg, client_address = file_server_socket.recvfrom(262144)  # Set buffer size as 10kB
         return_msg = server.msg_parse(msg)
         file_server_socket.sendto(return_msg, client_address)
 

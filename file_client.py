@@ -2,6 +2,7 @@ import shutil
 import struct
 import os
 import hashlib
+import math
 from tqdm import tqdm
 
 from config import file_server_port
@@ -70,7 +71,7 @@ def request_file(client_socket, filename, server_address):
     # client_socket.bind(('', client_port))
 
     client_socket.sendto(make_get_file_information_header(filename), (server_address,file_server_port))
-    msg, _ = client_socket.recvfrom(102400)
+    msg, _ = client_socket.recvfrom(24576)
     file_size, block_size, total_block_number, md5 = parse_file_information(msg)
 
     if file_size >0:
@@ -80,7 +81,7 @@ def request_file(client_socket, filename, server_address):
         print('Total block:', total_block_number)
         print('MD5:', md5)
 
-        # Creat a file
+        # Creat a temp file
         filename_sep = filename.split(os.sep)
         filename_sep[0] = "temp"
         if len(filename_sep) == 3:
@@ -88,14 +89,27 @@ def request_file(client_socket, filename, server_address):
             if not os.path.exists(new_path):
                 os.makedirs(new_path)
         tmp_file = os.sep.join(filename_sep)
-        f = open(tmp_file, 'wb')
-
+        tmp_size = 0
+        if os.path.exists(tmp_file):
+            tmp_size = os.path.getsize(tmp_file)
+            # f = open(tmp_file, 'rb+')
+            f = open(tmp_file, 'rb+')
+        else:
+            # f = open(tmp_file, 'wb+')
+            f = open(tmp_file, 'ab+')
         # Start to get file blocks
-        for block_index in tqdm(range(total_block_number)):
+        block_index = math.floor(tmp_size / block_size)
+        delete_data = tmp_size % block_size
+        #for block_index in tqdm(range(total_block_number)):
+        #for block_index in range(total_block_number):
+        # f.seek(-delete_data, 2)
+        while block_index < total_block_number:
+            # print(block_index)
             client_socket.sendto(make_get_fil_block_header(filename, block_index), (server_address, file_server_port))
             msg, _ = client_socket.recvfrom(block_size + 100)
             block_index_from_server, block_length, file_block = parse_file_block(msg)
             f.write(file_block)
+            block_index += 1
         f.close()
 
         # Check the MD5

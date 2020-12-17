@@ -2,7 +2,7 @@ import os
 import struct
 import hashlib, math
 
-block_size = 1024  # 1kB
+block_size = 24576 # 24kb
 
 
 def get_file_size(filename):
@@ -64,7 +64,7 @@ def make_file_block(filename, block_index):
         server_operation_code = 0
         header = struct.pack('!IIQQ', client_operation_code, server_operation_code, block_index, len(file_block))
         header_length = len(header)
-        print(filename, block_index, len(file_block))
+        # print(filename, block_index, len(file_block))
         return struct.pack('!I', header_length) + header + file_block
     else:
         client_operation_code = 1
