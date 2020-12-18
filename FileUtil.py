@@ -20,15 +20,18 @@ def find_difference(first_file_list, second_file_list, ):
     # ? new folder cannot be identified?
     file_dict = {}
     file_list = []
-    for file in first_file_list:
-        file_dict[file] = 1
+    try:
+        for file in first_file_list:
+            file_dict[file] = 1
 
-    for file in second_file_list:
-        file_dict[file] = file_dict[file] + 1
+        for file in second_file_list:
+            file_dict[file] = file_dict[file] + 1
 
-    for file in first_file_list:
-        if file_dict[file] == 1:
-            file_list.append(file)
+        for file in first_file_list:
+            if file_dict[file] == 1:
+                file_list.append(file)
+    except Exception:
+        print("some file was deleted")
     return file_list
     # only can pass one file when multiple file is sent into subdir
     # ! now file_list is a string. consider convert it into list !
