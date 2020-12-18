@@ -92,17 +92,14 @@ def request_file(client_socket, filename, server_address):
         tmp_size = 0
         if os.path.exists(tmp_file):
             tmp_size = os.path.getsize(tmp_file)
-            # f = open(tmp_file, 'rb+')
-            f = open(tmp_file, 'rb+')
-        else:
-            # f = open(tmp_file, 'wb+')
             f = open(tmp_file, 'ab+')
+        else:
+            f = open(tmp_file, 'wb+')
+
         # Start to get file blocks
         block_index = math.floor(tmp_size / block_size)
-        delete_data = tmp_size % block_size
-        #for block_index in tqdm(range(total_block_number)):
-        #for block_index in range(total_block_number):
-        # f.seek(-delete_data, 2)
+        f.truncate(block_index * block_size)
+        print("broken point start at: ", os.path.getsize(tmp_file))
         while block_index < total_block_number:
             # print(block_index)
             client_socket.sendto(make_get_fil_block_header(filename, block_index), (server_address, file_server_port))
@@ -110,6 +107,7 @@ def request_file(client_socket, filename, server_address):
             block_index_from_server, block_length, file_block = parse_file_block(msg)
             f.write(file_block)
             block_index += 1
+
         f.close()
 
         # Check the MD5
@@ -119,6 +117,7 @@ def request_file(client_socket, filename, server_address):
             shutil.move(tmp_file, filename)
         else:
             print('Downloaded file is broken.')
+            #os.remove(tmp_file)
     else:
         print('No such file.')
 

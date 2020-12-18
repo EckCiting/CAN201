@@ -19,8 +19,8 @@ def file_list_server_f():
         diff = []
         if file_list:
             for i in file_list:
-               if i not in traverse_files(path):
-                   diff.append(i)
+                if i not in traverse_files(path):
+                    diff.append(i)
 
         if diff:
             # find difference, request for file
@@ -36,8 +36,7 @@ def file_list_server_f():
                     client_socket.bind(('', file_client_port))
                     file_path_split = i.split(os.sep)
                     if len(file_path_split) == 3:
-                        new_path = file_path_split[0]+os.sep+file_path_split[1]
+                        new_path = file_path_split[0] + os.sep + file_path_split[1]
                         if not os.path.exists(new_path):
                             os.makedirs(new_path)
                     file_client.request_file(client_socket, i, client_address[0])
-
