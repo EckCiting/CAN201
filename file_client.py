@@ -1,9 +1,11 @@
+import json
 import shutil
 import struct
 import os
 import hashlib
 import math
 import FileUtil
+import config
 
 from config import file_server_port
 
@@ -73,25 +75,12 @@ def request_file(client_socket, filename, server_address):
         # print('MD5:', md5)
         operation_code = 1
         # 0 for not download; 1 for new download or resume; 2 for update
-        f1 = open("md5_list.txt")
-        line = f1.readline()
-        md5_dict = {}
-        # while line != "":
-        #     name_md5_list = line.split(',')
-        #     if filename == name_md5_list[0]:
-        #         if md5 in name_md5_list[1]:
-        #             operation_code = 0
-        #         else:
-        #             operation_code = 2
-        #     line = f1.readline()
-        while line != "":
-            name_md5_list = line.split(',')
-            md5_dict[name_md5_list[0]] = name_md5_list[1]
-            line = f1.readline()
-        f1.close()
+        f = open(config.md5_path,"r")
+        md5_dict = json.load(f)
+        f.close()
 
         if filename in md5_dict:
-            if md5 in md5_dict:
+            if md5 in md5_dict.values():
                 operation_code = 0
             else:
                 operation_code = 2
@@ -125,8 +114,7 @@ def request_file(client_socket, filename, server_address):
             f.close()
 
             # Check the MD5
-            md5_download = FileUtil.get_file_md5(tmp_file)
-            if md5_download == md5:
+            if os.path.getsize(tmp_file) == file_size:
                 print('Downloaded file is completed.')
                 shutil.move(tmp_file, filename)
             else:
@@ -147,6 +135,7 @@ def request_file(client_socket, filename, server_address):
                 # Check md5 every 0.1% of the data
                 block_index += 1
                 if block_index % base == 0:
+                    # ! May be optimized !
                     if md5 == FileUtil.get_file_md5(filename):
                         print("Update complete")
                         break

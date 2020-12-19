@@ -1,6 +1,8 @@
 from multiprocessing import Process
 from threading import Thread
 from time import sleep
+
+import config
 import file_server as server
 from file_list_server import *
 from file_list_client import *
@@ -13,18 +15,23 @@ current_file_list = []
 md5_dict = {}
 
 def monitor_file_change_f(path):
-    global current_file_list, cache_file_list
+    global current_file_list, cache_file_list, md5_dict
     print("start monitoring thread")
     while True:
         current_file_list = traverse_files(path)
         new_mod_file_list = find_difference(current_file_list, cache_file_list)
         if new_mod_file_list:
             for new_mod_file in new_mod_file_list:
-                new_hash = FileUtil.get_file_md5(new_mod_file[0])
-                if new_hash not in md5_dict:
-                    md5_dict[new_mod_file[0]] = new_hash
-                    f = open("md5_list.txt",'a+')
-                    f.write(new_mod_file[0] + ',' + new_hash + '\n')
+                # bug: different name but same md5 file will not be detected
+                filename = new_mod_file[0]
+                filemTime = new_mod_file[1]
+                new_hash = FileUtil.get_file_md5(filename)
+                if new_hash not in md5_dict.values():
+                    f = open("md5.json",'r+')
+                    md5_dict = json.load(f)
+                    md5_dict[filename] = new_hash
+                    f.seek(0,0)
+                    json.dump(md5_dict,f)
                     f.close()
                     cache_file_list = current_file_list
                     send_file_list(VMA, new_mod_file[0])
@@ -43,26 +50,26 @@ def file_server_f():
 
 
 def init():
-    global cache_file_list
+    global cache_file_list, md5_dict
     if not Path.exists(Path("share/")):
         Path.mkdir(Path("share"))
     if not Path.exists(Path("temp/")):
         Path.mkdir(Path("temp"))
+    if not Path.exists(Path("md5.json")):
+        t = open(config.md5_path,"w")
+        t.write("{}")
+        t.close()
     cache_file_list = traverse_files(path)
 
-    f = open("md5_list.txt",'r+')
-    f.seek(0,0)
-    line = f.readline()
-    while line != "":
-        name_md5_list = line.split(',')
-        md5_dict[name_md5_list[0]] = name_md5_list[1]
-        line = f.readline()
-
+    f = open(config.md5_path,"r+")
+    md5_dict = json.load(f)
     for file_tuple in cache_file_list:
-        if file_tuple[0] not in md5_dict:
-            file_hash = FileUtil.get_file_md5(file_tuple[0])
-            md5_dict[file_tuple[0]] = file_hash
-            f.write(file_tuple[0] + ','+ file_hash +'\n')
+        filename = file_tuple[0]
+        if filename not in md5_dict:
+            file_hash = FileUtil.get_file_md5(filename)
+            md5_dict[filename] = file_hash
+    f.seek(0,0)
+    json.dump(md5_dict,f)
     f.close()
 
 
