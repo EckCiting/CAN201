@@ -25,8 +25,8 @@ def monitor_file_change_f(path):
                     print("add new file")
                     md5_list.append(new_hash)
                     cache_file_list = current_file_list
-                    send_file_list(VMA, new_mod_file)
-                    send_file_list(VMB, new_mod_file)
+                    send_file_list(VMA, new_mod_file[0])
+                    send_file_list(VMB, new_mod_file[0])
 
 
 def file_server_f():
@@ -46,14 +46,19 @@ def init():
         Path.mkdir(Path("share"))
     if not Path.exists(Path("temp/")):
         Path.mkdir(Path("temp"))
+    f = open("md5_list.txt",'w')
     cache_file_list = traverse_files(path)
     for file_tuple in cache_file_list:
-        md5_list.append(FileUtil.get_file_md5(file_tuple[0]))
+    # ? How to avoid repeat caculate md5?
+        file_hash = FileUtil.get_file_md5(file_tuple[0])
+        md5_list.append(file_hash)
+        f.write(file_tuple[0] + ','+ file_hash +'\n')
+    f.close()
+
 
 
 if __name__ == '__main__':
     init()
-    print(md5_list)
     file_list_server_p = Process(target=file_list_server_f,args=())
     file_server_p = Process(target=file_server_f, args=())
     file_server_p.start()

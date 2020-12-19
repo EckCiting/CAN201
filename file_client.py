@@ -71,46 +71,58 @@ def request_file(client_socket, filename, server_address):
         print('Block size:', block_size)
         print('Total block:', total_block_number)
         print('MD5:', md5)
+        download_flag = True
+        md5_f = open("md5_list.txt")
+        line = md5_f.readline()
+        while line != "":
+            md5_list = line.split(',')
+            if md5 in md5_list[1]:
+                download_flag = False
+            line = md5_f.readline()
+        md5_f.close()
+        print(download_flag)
+        if download_flag:
+            # Creat a temp file
+            filename_sep = filename.split(os.sep)
+            filename_sep[0] = "temp"
+            if len(filename_sep) == 3:
+                new_path = filename_sep[0] + os.sep + filename_sep[1]
+                if not os.path.exists(new_path):
+                    os.makedirs(new_path)
+            tmp_file = os.sep.join(filename_sep)
+            tmp_size = 0
+            if os.path.exists(tmp_file):
+                tmp_size = os.path.getsize(tmp_file)
+                f = open(tmp_file, 'ab+')
+            else:
+                f = open(tmp_file, 'wb+')
 
-        # Creat a temp file
-        filename_sep = filename.split(os.sep)
-        filename_sep[0] = "temp"
-        if len(filename_sep) == 3:
-            new_path = filename_sep[0] + os.sep + filename_sep[1]
-            if not os.path.exists(new_path):
-                os.makedirs(new_path)
-        tmp_file = os.sep.join(filename_sep)
-        tmp_size = 0
-        if os.path.exists(tmp_file):
-            tmp_size = os.path.getsize(tmp_file)
-            f = open(tmp_file, 'ab+')
+            # Start to get file blocks
+            block_index = math.floor(tmp_size / block_size)
+            f.truncate(block_index * block_size)
+            print("broken point start at: ", os.path.getsize(tmp_file))
+            while block_index < total_block_number:
+                # print(block_index)
+                client_socket.sendto(make_get_fil_block_header(filename, block_index), (server_address, file_server_port))
+                msg, _ = client_socket.recvfrom(block_size + 100)
+                block_index_from_server, block_length, file_block = parse_file_block(msg)
+                f.write(file_block)
+                block_index += 1
+
+            f.close()
+
+            # Check the MD5
+            md5_download = FileUtil.get_file_md5(tmp_file)
+            if md5_download == md5:
+                print('Downloaded file is completed.')
+                shutil.move(tmp_file, filename)
+            else:
+                print('Downloaded file is broken.')
+                #os.remove(tmp_file)
         else:
-            f = open(tmp_file, 'wb+')
-
-        # Start to get file blocks
-        block_index = math.floor(tmp_size / block_size)
-        f.truncate(block_index * block_size)
-        print("broken point start at: ", os.path.getsize(tmp_file))
-        while block_index < total_block_number:
-            # print(block_index)
-            client_socket.sendto(make_get_fil_block_header(filename, block_index), (server_address, file_server_port))
-            msg, _ = client_socket.recvfrom(block_size + 100)
-            block_index_from_server, block_length, file_block = parse_file_block(msg)
-            f.write(file_block)
-            block_index += 1
-
-        f.close()
-
-        # Check the MD5
-        md5_download = FileUtil.get_file_md5(tmp_file)
-        if md5_download == md5:
-            print('Downloaded file is completed.')
-            shutil.move(tmp_file, filename)
-        else:
-            print('Downloaded file is broken.')
-            #os.remove(tmp_file)
+            print("Already have ", filename)
     else:
-        print('No such file.')
+        print('No such file.', filename)
 
 
 

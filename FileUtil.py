@@ -3,6 +3,7 @@ import os, time
 
 
 def get_file_md5(filename):
+    # print(filename)
     f = open(filename, 'rb')
     md5_obj = hashlib.md5()
     while True:
