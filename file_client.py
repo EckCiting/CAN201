@@ -66,11 +66,11 @@ def request_file(client_socket, filename, server_address):
     file_size, block_size, total_block_number, md5 = parse_file_information(msg)
 
     if file_size >0:
-        print('Filename:', filename)
-        print('File size:', file_size)
-        print('Block size:', block_size)
-        print('Total block:', total_block_number)
-        print('MD5:', md5)
+        # print('Filename:', filename)
+        # print('File size:', file_size)
+        # print('Block size:', block_size)
+        # print('Total block:', total_block_number)
+        # print('MD5:', md5)
         operation_code = 1
         # 0 for not download; 1 for new download or resume; 2 for update
         md5_f = open("md5_list.txt")
@@ -78,14 +78,13 @@ def request_file(client_socket, filename, server_address):
         while line != "":
             name_md5_list = line.split(',')
             if filename == name_md5_list[0]:
-                if md5 == name_md5_list[1]:
+                if md5 in name_md5_list[1]:
                     operation_code = 0
                 else:
                     operation_code = 2
 
             line = md5_f.readline()
         md5_f.close()
-        print(operation_code)
 
         if operation_code == 1:
             # Creat a temp file

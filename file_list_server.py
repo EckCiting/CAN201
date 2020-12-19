@@ -16,7 +16,6 @@ def file_list_server_f():
         # listening file list from other VMs
         file_list_json, client_address = server_socket.recvfrom(2048)
         file_list = json.loads(file_list_json.decode())
-        diff_file_list = []
         if file_list:
             if isinstance(file_list, str):
                 file_list = [file_list]
@@ -55,5 +54,4 @@ def file_list_server_f():
                         new_path = file_path_split[0] + os.sep + file_path_split[1]
                         if not os.path.exists(new_path):
                             os.makedirs(new_path)
-                    print("ask for ", i)
                     file_client.request_file(client_socket, i, client_address[0])
