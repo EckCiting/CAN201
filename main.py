@@ -9,8 +9,8 @@ import FileUtil
 # file list is a tuple (file_name, modified_time)
 cache_file_list = []
 current_file_list = []
-md5_list = []
-
+#md5_list = []
+md5_dict = {}
 
 def monitor_file_change_f(path):
     global current_file_list, cache_file_list
@@ -21,9 +21,11 @@ def monitor_file_change_f(path):
         if new_mod_file_list:
             for new_mod_file in new_mod_file_list:
                 new_hash = FileUtil.get_file_md5(new_mod_file[0])
-                if new_hash not in md5_list: # old md5 is not removed
-                    print("add new file")
-                    md5_list.append(new_hash)
+                if new_hash not in md5_dict:
+                    md5_dict[new_mod_file[0]] = new_hash
+                    f = open("md5_list.txt",'a+')
+                    f.write(new_mod_file[0] + ',' + new_hash + '\n')
+                    f.close()
                     cache_file_list = current_file_list
                     send_file_list(VMA, new_mod_file[0])
                     send_file_list(VMB, new_mod_file[0])
@@ -46,13 +48,21 @@ def init():
         Path.mkdir(Path("share"))
     if not Path.exists(Path("temp/")):
         Path.mkdir(Path("temp"))
-    f = open("md5_list.txt",'w')
     cache_file_list = traverse_files(path)
+
+    f = open("md5_list.txt",'r+')
+    f.seek(0,0)
+    line = f.readline()
+    while line != "":
+        name_md5_list = line.split(',')
+        md5_dict[name_md5_list[0]] = name_md5_list[1]
+        line = f.readline()
+
     for file_tuple in cache_file_list:
-    # ? How to avoid repeat caculate md5?
-        file_hash = FileUtil.get_file_md5(file_tuple[0])
-        md5_list.append(file_hash)
-        f.write(file_tuple[0] + ','+ file_hash +'\n')
+        if file_tuple[0] not in md5_dict:
+            file_hash = FileUtil.get_file_md5(file_tuple[0])
+            md5_dict[file_tuple[0]] = file_hash
+            f.write(file_tuple[0] + ','+ file_hash +'\n')
     f.close()
 
 

@@ -73,18 +73,28 @@ def request_file(client_socket, filename, server_address):
         # print('MD5:', md5)
         operation_code = 1
         # 0 for not download; 1 for new download or resume; 2 for update
-        md5_f = open("md5_list.txt")
-        line = md5_f.readline()
+        f1 = open("md5_list.txt")
+        line = f1.readline()
+        md5_dict = {}
+        # while line != "":
+        #     name_md5_list = line.split(',')
+        #     if filename == name_md5_list[0]:
+        #         if md5 in name_md5_list[1]:
+        #             operation_code = 0
+        #         else:
+        #             operation_code = 2
+        #     line = f1.readline()
         while line != "":
             name_md5_list = line.split(',')
-            if filename == name_md5_list[0]:
-                if md5 in name_md5_list[1]:
-                    operation_code = 0
-                else:
-                    operation_code = 2
+            md5_dict[name_md5_list[0]] = name_md5_list[1]
+            line = f1.readline()
+        f1.close()
 
-            line = md5_f.readline()
-        md5_f.close()
+        if filename in md5_dict:
+            if md5 in md5_dict:
+                operation_code = 0
+            else:
+                operation_code = 2
 
         if operation_code == 1:
             # Creat a temp file
