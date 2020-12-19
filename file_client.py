@@ -3,18 +3,9 @@ import struct
 import os
 import hashlib
 import math
-from tqdm import tqdm
+import FileUtil
 
 from config import file_server_port
-
-
-def get_file_md5(filename):
-    global file_dir
-    f = open(filename, 'rb')
-    contents = f.read()
-    f.close()
-    return hashlib.md5(contents).hexdigest()
-
 
 def make_get_file_information_header(filename):
     operation_code = 0
@@ -111,7 +102,7 @@ def request_file(client_socket, filename, server_address):
         f.close()
 
         # Check the MD5
-        md5_download = get_file_md5(tmp_file)
+        md5_download = FileUtil.get_file_md5(tmp_file)
         if md5_download == md5:
             print('Downloaded file is completed.')
             shutil.move(tmp_file, filename)

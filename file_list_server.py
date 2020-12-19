@@ -15,21 +15,24 @@ def file_list_server_f():
     while True:
         # listening file list from other VMs
         file_list_json, client_address = server_socket.recvfrom(2048)
-        file_list = json.loads(file_list_json.decode())
-        diff = []
-        if file_list:
-            for i in file_list:
-                if i not in traverse_files(path):
-                    diff.append(i)
+        file_tuple_list = json.loads(file_list_json.decode())
+        diff_file_list = []
+        if file_tuple_list:
+            current_file_list = []
+            for f_tuple in traverse_files(path):
+                current_file_list.append(f_tuple[0])
 
-        if diff:
-            # find difference, request for file
-            if diff[0] == "allfiles":
-                a = traverse_files(path)
+            # a VM request for lists of all files
+            if file_tuple_list == ["allfiles"]:
+                a = current_file_list
                 send_file_list(client_address[0], a)
 
-            else:
-                for i in diff:
+            for f_tuple in file_tuple_list:
+                if f_tuple[0] not in current_file_list:
+                    diff_file_list.append(f_tuple[0])
+
+            if diff_file_list:
+                for i in diff_file_list:
                     # create new folder
                     # only supports secondary dir
                     client_socket = socket(AF_INET, SOCK_DGRAM)
