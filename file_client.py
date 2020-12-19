@@ -71,17 +71,23 @@ def request_file(client_socket, filename, server_address):
         print('Block size:', block_size)
         print('Total block:', total_block_number)
         print('MD5:', md5)
-        download_flag = True
+        operation_code = 1
+        # 0 for not download; 1 for new download or resume; 2 for update
         md5_f = open("md5_list.txt")
         line = md5_f.readline()
         while line != "":
-            md5_list = line.split(',')
-            if md5 in md5_list[1]:
-                download_flag = False
+            name_md5_list = line.split(',')
+            if filename == name_md5_list[0]:
+                if md5 == name_md5_list[1]:
+                    operation_code = 0
+                else:
+                    operation_code = 2
+
             line = md5_f.readline()
         md5_f.close()
-        print(download_flag)
-        if download_flag:
+        print(operation_code)
+
+        if operation_code == 1:
             # Creat a temp file
             filename_sep = filename.split(os.sep)
             filename_sep[0] = "temp"
@@ -100,7 +106,6 @@ def request_file(client_socket, filename, server_address):
             # Start to get file blocks
             block_index = math.floor(tmp_size / block_size)
             f.truncate(block_index * block_size)
-            print("broken point start at: ", os.path.getsize(tmp_file))
             while block_index < total_block_number:
                 # print(block_index)
                 client_socket.sendto(make_get_fil_block_header(filename, block_index), (server_address, file_server_port))
@@ -108,7 +113,6 @@ def request_file(client_socket, filename, server_address):
                 block_index_from_server, block_length, file_block = parse_file_block(msg)
                 f.write(file_block)
                 block_index += 1
-
             f.close()
 
             # Check the MD5
@@ -119,6 +123,25 @@ def request_file(client_socket, filename, server_address):
             else:
                 print('Downloaded file is broken.')
                 #os.remove(tmp_file)
+
+        elif operation_code == 2:
+            print("updating: ",filename)
+            f = open(filename, 'rb+')
+            block_index = 0
+            base = math.ceil(total_block_number * 0.0015)
+            while block_index < total_block_number:
+                f.seek(block_size * block_index, 0)
+                client_socket.sendto(make_get_fil_block_header(filename, block_index), (server_address, file_server_port))
+                msg, _ = client_socket.recvfrom(block_size + 100)
+                block_index_from_server, block_length, file_block = parse_file_block(msg)
+                f.write(file_block)
+                # Check md5 every 0.1% of the data
+                block_index += 1
+                if block_index % base == 0:
+                    if md5 == FileUtil.get_file_md5(filename):
+                        print("Update complete")
+                        break
+            f.close()
         else:
             print("Already have ", filename)
     else:
